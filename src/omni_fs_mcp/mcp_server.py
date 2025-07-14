@@ -31,14 +31,14 @@ def init_client(url: str):
     """Initialize the global DAL client with the provided URL."""
     global _client
     logger.info(f"Initializing DAL client with URL: {url}")
-    _client = DAL(url)
+    _client = DAL.from_url(url)
     logger.info("DAL client initialized successfully")
 
 
 @mcp.tool()
 def list_files(path: str = "/") -> List[Dict[str, Any]]:
     """
-    List files and directories in the specified WebDAV path.
+    List files and directories in the specified path.
 
     Args:
         path: The directory path to list, always ending with a slash ("/").
@@ -65,7 +65,7 @@ def list_files(path: str = "/") -> List[Dict[str, Any]]:
 @mcp.tool()
 def read_file(path: str) -> str:
     """
-    Read the contents of a file from WebDAV.
+    Read the contents of a file from the file system.
 
     Args:
         path: The file path to read
@@ -88,7 +88,7 @@ def read_file(path: str) -> str:
 @mcp.tool()
 def write_file(path: str, content: str) -> str:
     """
-    Write content to a file on WebDAV.
+    Write content to a file on the file system.
 
     Args:
         path: The file path to write to
@@ -109,7 +109,7 @@ def write_file(path: str, content: str) -> str:
 @mcp.tool()
 def copy_file(src: str, dst: str) -> str:
     """
-    Copy a file or directory on WebDAV.
+    Copy a file or directory on the file system.
 
     Args:
         src: Source path
@@ -130,7 +130,7 @@ def copy_file(src: str, dst: str) -> str:
 @mcp.tool()
 def rename_file(src: str, dst: str) -> str:
     """
-    Rename or move a file or directory on WebDAV.
+    Rename or move a file or directory on the file system.
 
     Args:
         src: Source path
@@ -151,7 +151,7 @@ def rename_file(src: str, dst: str) -> str:
 @mcp.tool()
 def create_dir(path: str) -> str:
     """
-    Create a directory on WebDAV.
+    Create a directory on the file system.
 
     Args:
         path: The directory path to create
@@ -171,7 +171,7 @@ def create_dir(path: str) -> str:
 @mcp.tool()
 def stat_file(path: str) -> opendal.Metadata:
     """
-    Get metadata/statistics for a file or directory on WebDAV.
+    Get metadata/statistics for a file or directory on the file system.
 
     Args:
         path: The path to get stats for
@@ -196,15 +196,76 @@ def main():
     # Set up command line argument parsing
     parser = argparse.ArgumentParser(description="Omni-FS MCP Server")
     parser.add_argument("url", help="URL to initialize DAL client")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "streamable-http"],
+        default="stdio",
+        help="Transport mechanism to use (default: stdio)",
+    )
+    # parser.add_argument(
+    #     "--port",
+    #     type=int,
+    #     default=8000,
+    #     help="Port to listen on for streamable-http transport (default: 8000)",
+    # )
+    # parser.add_argument(
+    #     "--host",
+    #     default="localhost",
+    #     help="Host to bind to for streamable-http transport (default: localhost)",
+    # )
     args = parser.parse_args()
 
     logger.info(f"Starting Omni-FS MCP Server with URL: {args.url}")
+    logger.info(f"Using transport: {args.transport}")
 
     # Initialize the DAL client with the provided URL
     init_client(args.url)
 
-    # Start the MCP server with streamable HTTP transport
-    logger.info("Starting MCP server with streamable-http transport")
+    # Start the MCP server with the specified transport
+    if args.transport == "stdio":
+        logger.info("Starting MCP server with stdio transport")
+        mcp.run(transport="stdio")
+    elif args.transport == "streamable-http":
+        # logger.info(
+        #     f"Starting MCP server with streamable-http transport on {args.host}:{args.port}"
+        # )
+        mcp.run(transport="streamable-http")
+
+
+def run_stdio():
+    """Run the MCP server with stdio transport for local connections."""
+    import sys
+
+    if len(sys.argv) < 2:
+        logger.error("URL argument required")
+        print("Usage: omni-fs-mcp-stdio <url>", file=sys.stderr)
+        sys.exit(1)
+
+    url = sys.argv[1]
+    logger.info("Starting Omni-FS MCP Server with stdio transport")
+    logger.info(f"Initializing with URL: {url}")
+    init_client(url)
+    mcp.run(transport="stdio")
+
+
+def run_http():
+    """Run the MCP server with streamable-http transport for remote connections."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Omni-FS MCP Server (HTTP)")
+    parser.add_argument("url", help="URL to initialize DAL client")
+    # parser.add_argument(
+    #     "--host", default="localhost", help="Host to bind to (default: localhost)"
+    # )
+    # parser.add_argument(
+    #     "--port", type=int, default=8000, help="Port to listen on (default: 8000)"
+    # )
+    args = parser.parse_args()
+
+    logger.info("Starting Omni-FS MCP Server with streamable-http transport")
+    # logger.info(f"Server will listen on {args.host}:{args.port}")
+    logger.info(f"Initializing with URL: {args.url}")
+    init_client(args.url)
     mcp.run(transport="streamable-http")
 
 
