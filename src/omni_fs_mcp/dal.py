@@ -6,16 +6,18 @@ import opendal
 
 
 class DAL:
-    def __init__(self, schema: str, options: dict = None):
+    def __init__(self, schema: str, options: dict | None = None):
         if options is None:
             options = {}
         self.schema = schema
         self.options = options
-        self._op = None  # Lazy-initialized opendal.Operator instance
+        self._op: opendal.Operator | None = (
+            None  # Lazy-initialized opendal.Operator instance
+        )
         self.logger = logging.getLogger(__name__)
 
     @property
-    def op(self):
+    def op(self) -> opendal.Operator:
         """
         Lazily initialize and return the opendal.Operator instance for WebDAV.
 
@@ -40,8 +42,8 @@ class DAL:
             OpenDAL: The created instance.
         """
         u = urlparse(url)
-        options = parse_qs(u.query)
-        options = {key: val[0] for key, val in options.items()}
+        parsed_options = parse_qs(u.query)
+        options = {key: val[0] for key, val in parsed_options.items() if val}
 
         # For file system (fs) scheme, use the scheme instead of netloc
         schema = u.scheme
@@ -139,9 +141,8 @@ class DAL:
         """
         self.logger.debug(f"Copying from {src} to {dst}")
         try:
-            result = self.op.copy(src, dst)
+            self.op.copy(src, dst)
             self.logger.info(f"Successfully copied {src} to {dst}")
-            return result
         except Exception as e:
             self.logger.error(f"Failed to copy {src} to {dst}: {e}")
             raise
@@ -156,9 +157,8 @@ class DAL:
         """
         self.logger.debug(f"Writing to file: {path} ({len(data)} bytes)")
         try:
-            result = self.op.write(path, data)
+            self.op.write(path, data)
             self.logger.info(f"Successfully wrote to file: {path}")
-            return result
         except Exception as e:
             self.logger.error(f"Failed to write to file {path}: {e}")
             raise
@@ -173,9 +173,8 @@ class DAL:
         """
         self.logger.debug(f"Renaming from {src} to {dst}")
         try:
-            result = self.op.rename(src, dst)
+            self.op.rename(src, dst)
             self.logger.info(f"Successfully renamed {src} to {dst}")
-            return result
         except Exception as e:
             self.logger.error(f"Failed to rename {src} to {dst}: {e}")
             raise
@@ -189,9 +188,8 @@ class DAL:
         """
         self.logger.debug(f"Creating directory: {path}")
         try:
-            result = self.op.create_dir(path)
+            self.op.create_dir(path)
             self.logger.info(f"Successfully created directory: {path}")
-            return result
         except Exception as e:
             self.logger.error(f"Failed to create directory {path}: {e}")
             raise

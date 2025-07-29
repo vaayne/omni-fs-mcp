@@ -409,7 +409,7 @@ def stat_file(path: str, backend: str | None = None) -> opendal.Metadata:
         raise Exception(f"Failed to get file metadata: {e}") from e
 
 
-def load_config_from_file(config_path: str):
+def load_config_from_file(config_path: str) -> None:
     """Load backend configuration from a JSON file."""
     try:
         with open(config_path) as f:
@@ -440,7 +440,7 @@ def load_config_from_file(config_path: str):
         raise
 
 
-def main():
+def main() -> int:
     """Main entry point for the MCP server."""
     import argparse
 
@@ -498,7 +498,7 @@ def main():
     return 0
 
 
-def run_stdio():
+def run_stdio() -> None:
     """Entry point for stdio transport with optional config file or URL."""
     import sys
 
@@ -528,7 +528,7 @@ def run_stdio():
     mcp.run(transport="stdio")
 
 
-def run_http():
+def run_http() -> None:
     """Entry point for HTTP transport with optional config file or URL."""
     import argparse
 
@@ -559,7 +559,7 @@ def run_http():
             logger.info(f"Loaded configuration from {args.config}")
         except Exception as e:
             logger.error(f"Failed to load configuration: {e}")
-            return 1
+            return
 
     mcp.run(transport="streamable-http")
 

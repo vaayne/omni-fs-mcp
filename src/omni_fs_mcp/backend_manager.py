@@ -28,7 +28,7 @@ class BackendConfig:
         self.retry_attempts = retry_attempts
         self._validate()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validate backend configuration."""
         if not self.name or not isinstance(self.name, str):
             raise ValueError("Backend name must be a non-empty string")
@@ -57,7 +57,7 @@ class BackendConfig:
 class BackendManager:
     """Manages multiple DAL backend instances with advanced features."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.backends: dict[str, DAL] = {}
         self.configs: dict[str, BackendConfig] = {}
         self.default_backend: str | None = None
@@ -126,7 +126,7 @@ class BackendManager:
                 raise ConnectionError(f"Backend '{name}' connection failed: {e}") from e
             return False
 
-    def _validate_connection(self, dal_instance: DAL, name: str):
+    def _validate_connection(self, dal_instance: DAL, name: str) -> None:
         """Validate connection to a backend."""
         try:
             # Try a simple operation to validate connection
@@ -190,7 +190,7 @@ class BackendManager:
             )
         return result
 
-    def set_default_backend(self, name: str):
+    def set_default_backend(self, name: str) -> None:
         """Set the default backend."""
         if name not in self.backends:
             raise ValueError(f"Backend '{name}' not found")
@@ -199,7 +199,7 @@ class BackendManager:
         self.default_backend = name
         logger.info(f"Changed default backend from '{old_default}' to '{name}'")
 
-    def remove_backend(self, name: str, force: bool = False):
+    def remove_backend(self, name: str, force: bool = False) -> None:
         """
         Remove a backend.
 
