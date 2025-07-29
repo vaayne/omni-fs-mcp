@@ -1,6 +1,5 @@
 """Tests for the DAL (Data Access Layer) module."""
 
-import pytest
 
 from omni_fs_mcp.dal import DAL
 
