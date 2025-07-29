@@ -1,0 +1,19 @@
+[tasks.lint]
+description = "Run linters and formatters on the codebase"
+run = [
+  "uv run ruff check --fix .",
+  "uv run ruff format .",
+  "uv run mypy src/"
+]
+
+[tasks.test]
+run = "uv run pytest -v"
+description = "Run all tests in the project"
+
+[tasks.build]
+run = "uv build"
+description = "Build the project into distribution packages"
+
+[tasks.release]
+run = "uv publish"
+description = "Release the project to PyPI"
