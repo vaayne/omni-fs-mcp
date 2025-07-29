@@ -40,7 +40,15 @@ class DAL(object):
         u = urlparse(url)
         options = parse_qs(u.query)
         options = {key: val[0] for key, val in options.items()}
-        return cls(u.netloc, options=options)
+        
+        # For file system (fs) scheme, use the scheme instead of netloc
+        schema = u.scheme
+        if schema == "fs":
+            # For local filesystem, we don't need the netloc
+            return cls(schema, options=options)
+        else:
+            # For other schemes, netloc might contain important info
+            return cls(schema, options=options)
 
     def list(self, path: str) -> Iterable[opendal.Entry]:
         """
