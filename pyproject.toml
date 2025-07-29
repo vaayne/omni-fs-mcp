@@ -1,6 +1,6 @@
 [project]
 name = "omni-fs-mcp"
-version = "0.1.3"
+version = "0.1.4"
 description = "Omni-FS-MCP is an MCP server that supports managing multiple types of file systems, such as local FS, S3, R2, B2, WebDAV, and others, in one MCP server. It is built on top of OpenDAL."
 readme = "README.md"
 authors = [{ name = "Vaayne", email = "liu.vaayne@gmail.com" }]
