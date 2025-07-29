@@ -1,6 +1,7 @@
 """Tests for the DAL (Data Access Layer) module."""
 
 import pytest
+
 from omni_fs_mcp.dal import DAL
 
 
@@ -12,7 +13,7 @@ class TestDAL:
         schema = "memory"
         options = {"key": "value"}
         dal = DAL(schema, options)
-        
+
         assert dal.schema == schema
         assert dal.options == options
 
@@ -20,7 +21,7 @@ class TestDAL:
         """Test DAL initialization without options."""
         schema = "memory"
         dal = DAL(schema)
-        
+
         assert dal.schema == schema
         assert dal.options == {}
 
@@ -28,7 +29,7 @@ class TestDAL:
         """Test creating DAL from memory URL."""
         url = "memory:///"
         dal = DAL.from_url(url)
-        
+
         assert dal.schema == "memory"
         assert isinstance(dal.options, dict)
 
@@ -36,7 +37,7 @@ class TestDAL:
         """Test creating DAL from URL with query parameters."""
         url = "memory:///?param1=value1&param2=value2"
         dal = DAL.from_url(url)
-        
+
         assert dal.schema == "memory"
         assert dal.options["param1"] == "value1"
         assert dal.options["param2"] == "value2"
@@ -45,6 +46,6 @@ class TestDAL:
         """Test creating DAL from filesystem URL."""
         url = "fs:///"
         dal = DAL.from_url(url)
-        
+
         assert dal.schema == "fs"
         assert isinstance(dal.options, dict)
