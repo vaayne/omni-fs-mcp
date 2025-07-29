@@ -88,6 +88,7 @@ jobs:
     - name: Publish to PyPI (Trusted Publishing)
       if: steps.version-check.outputs.version_changed == 'true' && steps.tag-check.outputs.tag_exists == 'false'
       uses: pypa/gh-action-pypi-publish@release/v1
+      environment: pypi
 
     - name: Create GitHub Release
       if: steps.version-check.outputs.version_changed == 'true' && steps.tag-check.outputs.tag_exists == 'false'
