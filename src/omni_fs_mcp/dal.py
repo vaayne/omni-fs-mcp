@@ -1,12 +1,14 @@
 import logging
-from typing import Iterable
+from collections.abc import Iterable
 from urllib.parse import parse_qs, urlparse
 
 import opendal
 
 
-class DAL(object):
-    def __init__(self, schema: str, options: dict = {}):
+class DAL:
+    def __init__(self, schema: str, options: dict = None):
+        if options is None:
+            options = {}
         self.schema = schema
         self.options = options
         self._op = None  # Lazy-initialized opendal.Operator instance
@@ -40,7 +42,7 @@ class DAL(object):
         u = urlparse(url)
         options = parse_qs(u.query)
         options = {key: val[0] for key, val in options.items()}
-        
+
         # For file system (fs) scheme, use the scheme instead of netloc
         schema = u.scheme
         if schema == "fs":
