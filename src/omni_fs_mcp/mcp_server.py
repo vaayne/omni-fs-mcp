@@ -3,6 +3,7 @@ import logging
 from typing import Any
 
 import opendal
+import uvicorn
 from mcp.server.fastmcp import FastMCP
 
 from omni_fs_mcp.backend_manager import BackendManager
@@ -505,7 +506,8 @@ def main() -> int:
         mcp.run(transport="stdio")
     elif args.transport == "http":
         logger.info(f"Starting server with HTTP transport on {args.host}:{args.port}")
-        mcp.run(transport="streamable-http")
+        app = mcp.streamable_http_app()
+        uvicorn.run(app, host=args.host, port=args.port)
 
     return 0
 
