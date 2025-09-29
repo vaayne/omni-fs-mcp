@@ -45,13 +45,30 @@ class DAL:
         parsed_options = parse_qs(u.query)
         options = {key: val[0] for key, val in parsed_options.items() if val}
 
-        # For file system (fs) scheme, use the scheme instead of netloc
         schema = u.scheme
+
+        # Handle different backend types with their specific requirements
         if schema == "fs":
             # For local filesystem, we don't need the netloc
             return cls(schema, options=options)
+        elif schema in ("webdav", "http", "https"):
+            # WebDAV, HTTP, and HTTPS backends need an 'endpoint' parameter
+            # Convert webdav:// to http:// for the endpoint
+            if schema == "webdav":
+                endpoint_scheme = "http"
+            else:
+                endpoint_scheme = schema
+
+            # Construct the endpoint URL
+            if u.netloc:
+                endpoint = f"{endpoint_scheme}://{u.netloc}"
+                if u.path:
+                    endpoint += u.path
+                options["endpoint"] = endpoint
+
+            return cls(schema, options=options)
         else:
-            # For other schemes, netloc might contain important info
+            # For other schemes (s3, memory, ftp, etc.), use existing behavior
             return cls(schema, options=options)
 
     def list(self, path: str) -> Iterable[opendal.Entry]:
