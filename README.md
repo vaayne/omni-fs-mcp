@@ -23,16 +23,16 @@ pip install omni-fs-mcp
 
 ```bash
 # Local filesystem
-omni-fs-mcp-stdio "fs:///"
+omni-fs-mcp "fs://"
 
 # S3
-omni-fs-mcp-http "s3://bucket-name?region=us-east-1&access_key_id=xxx&secret_access_key=yyy"
+omni-fs-mcp --transport http "s3://bucket-name?region=us-east-1&access_key_id=xxx&secret_access_key=yyy"
 
 # WebDAV
-omni-fs-mcp-stdio "webdav://example.com/webdav?username=user&password=pass"
+omni-fs-mcp "webdav://example.com/webdav?username=user&password=pass"
 
 # Memory (for testing)
-omni-fs-mcp-stdio "memory:///"
+omni-fs-mcp "memory://"
 ```
 
 ### Multi-Backend Mode with Configuration
@@ -68,10 +68,10 @@ Start the server with the configuration:
 
 ```bash
 # Stdio transport
-omni-fs-mcp-stdio backends.json
+omni-fs-mcp backends.json
 
 # Or HTTP transport
-omni-fs-mcp-http --config backends.json --port 8080
+omni-fs-mcp --transport http --config backends.json --port 8080
 ```
 
 ## Available Tools
@@ -172,26 +172,30 @@ copy_file("/project/index.html", "/www/index.html",
 
 ## Command Line Interface
 
-### General Command
+### Command Usage
 
 ```bash
 # Stdio transport (default)
+omni-fs-mcp [--config config.json] [url]
 omni-fs-mcp [--config config.json] [url] --transport stdio
 
 # HTTP transport
-omni-fs-mcp [--config config.json] [url] --transport streamable-http --port 8080
+omni-fs-mcp --transport http [--config config.json] [url] [--port 8080] [--host localhost]
 ```
 
-### Transport-Specific Commands
+### Examples
 
 **For stdio transport (local connections):**
 ```bash
-omni-fs-mcp-stdio [config.json|url]
+omni-fs-mcp "fs://"
+omni-fs-mcp backends.json
+omni-fs-mcp --config backends.json
 ```
 
 **For HTTP transport (remote connections):**
 ```bash
-omni-fs-mcp-http [--config config.json] [url] [--port 8080] [--host localhost]
+omni-fs-mcp --transport http "s3://bucket"
+omni-fs-mcp --transport http --config backends.json --port 8080 --host 0.0.0.0
 ```
 
 ### Transport Modes
@@ -301,10 +305,10 @@ uv sync
 uv run pytest
 
 # Run the server in development
-uv run omni-fs-mcp-stdio "memory:///"
+uv run omni-fs-mcp "memory://"
 
 # Test multi-backend setup
-uv run omni-fs-mcp-stdio examples/demo_config.json
+uv run omni-fs-mcp examples/demo_config.json
 ```
 
 ## Security Considerations

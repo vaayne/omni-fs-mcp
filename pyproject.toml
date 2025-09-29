@@ -35,8 +35,6 @@ package = true
 
 [project.scripts]
 omni-fs-mcp = "omni_fs_mcp.mcp_server:main"
-omni-fs-mcp-stdio = "omni_fs_mcp.mcp_server:run_stdio"
-omni-fs-mcp-http = "omni_fs_mcp.mcp_server:run_http"
 
 [build-system]
 requires = ["hatchling>=1.21.0"]

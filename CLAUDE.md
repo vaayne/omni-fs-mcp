@@ -17,12 +17,12 @@ uv run pytest
 uv run pytest tests/test_specific.py::test_function_name -v
 
 # Run the server locally for testing (single backend mode)
-uv run omni-fs-mcp-stdio "memory:///"
-uv run omni-fs-mcp-http "memory:///"
+uv run omni-fs-mcp "memory://"
+uv run omni-fs-mcp --transport http "memory://"
 
 # Run with multi-backend configuration
-uv run omni-fs-mcp-stdio examples/demo_config.json
-uv run omni-fs-mcp-http --config examples/demo_config.json --port 8080
+uv run omni-fs-mcp examples/demo_config.json
+uv run omni-fs-mcp --transport http --config examples/demo_config.json --port 8080
 
 # Build package (optimized with hatchling)
 uv build
@@ -100,10 +100,10 @@ Use the memory backend for development and testing:
 
 ```bash
 # Single backend mode
-uv run omni-fs-mcp-stdio "memory:///"
+uv run omni-fs-mcp "memory://"
 
 # Multi-backend mode with configuration
-uv run omni-fs-mcp-stdio examples/demo_config.json
+uv run omni-fs-mcp examples/demo_config.json
 ```
 
 All file operations are logged with comprehensive error handling and debug information.
@@ -127,7 +127,7 @@ echo '{
 }' > test_config.json
 
 # Test with configuration
-uv run omni-fs-mcp-stdio test_config.json
+uv run omni-fs-mcp test_config.json
 ```
 
 ### Debugging Backend Issues
