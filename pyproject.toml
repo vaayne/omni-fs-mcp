@@ -7,7 +7,11 @@ authors = [{ name = "Vaayne", email = "liu.vaayne@gmail.com" }]
 license = { text = "MIT" }
 requires-python = ">=3.11"
 
-dependencies = ["mcp>=1.11.0", "opendal>=0.45.20"]
+dependencies = [
+    "mcp>=1.11.0",
+    "opendal>=0.45.20",
+    "uvicorn>=0.35.0",
+]
 keywords = ["mcp", "filesystem", "opendal", "s3", "webdav"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -35,8 +39,6 @@ package = true
 
 [project.scripts]
 omni-fs-mcp = "omni_fs_mcp.mcp_server:main"
-omni-fs-mcp-stdio = "omni_fs_mcp.mcp_server:run_stdio"
-omni-fs-mcp-http = "omni_fs_mcp.mcp_server:run_http"
 
 [build-system]
 requires = ["hatchling>=1.21.0"]

@@ -3,6 +3,7 @@ import logging
 from typing import Any
 
 import opendal
+import uvicorn
 from mcp.server.fastmcp import FastMCP
 
 from omni_fs_mcp.backend_manager import BackendManager
@@ -470,22 +471,34 @@ def main() -> int:
 
     logger.info("Starting Omni-FS MCP Server")
 
-    # Handle backward compatibility with single URL argument
-    if args.url and not args.config:
-        logger.info(f"Single backend mode with URL: {args.url}")
-        backend_manager.register_backend(
-            name="default",
-            url=args.url,
-            description="Legacy single backend",
-            set_as_default=True,
-        )
-    elif args.config:
+    # Handle configuration and backend setup
+    if args.config:
+        # Explicit config file specified
         try:
             load_config_from_file(args.config)
             logger.info(f"Loaded configuration from {args.config}")
         except Exception as e:
             logger.error(f"Failed to load configuration: {e}")
             return 1
+    elif args.url:
+        # Check if the URL argument is actually a config file or a URL
+        if args.url.endswith(".json"):
+            # It's a config file
+            try:
+                load_config_from_file(args.url)
+                logger.info(f"Loaded configuration from {args.url}")
+            except Exception as e:
+                logger.error(f"Failed to load configuration: {e}")
+                return 1
+        else:
+            # It's a URL for single backend mode
+            logger.info(f"Single backend mode with URL: {args.url}")
+            backend_manager.register_backend(
+                name="default",
+                url=args.url,
+                description="Legacy single backend",
+                set_as_default=True,
+            )
 
     # Start the server
     if args.transport == "stdio":
@@ -493,75 +506,10 @@ def main() -> int:
         mcp.run(transport="stdio")
     elif args.transport == "http":
         logger.info(f"Starting server with HTTP transport on {args.host}:{args.port}")
-        mcp.run(transport="streamable-http")
+        app = mcp.streamable_http_app()
+        uvicorn.run(app, host=args.host, port=args.port)
 
     return 0
-
-
-def run_stdio() -> None:
-    """Entry point for stdio transport with optional config file or URL."""
-    import sys
-
-    config_or_url = sys.argv[1] if len(sys.argv) > 1 else None
-
-    logger.info("Starting Omni-FS MCP Server with stdio transport")
-
-    if config_or_url:
-        # Check if it's a config file (ends with .json) or a URL
-        if config_or_url.endswith(".json"):
-            try:
-                load_config_from_file(config_or_url)
-                logger.info(f"Loaded configuration from {config_or_url}")
-            except Exception as e:
-                logger.error(f"Failed to load configuration: {e}")
-                sys.exit(1)
-        else:
-            # Treat as URL for backward compatibility
-            logger.info(f"Single backend mode with URL: {config_or_url}")
-            backend_manager.register_backend(
-                name="default",
-                url=config_or_url,
-                description="Legacy single backend",
-                set_as_default=True,
-            )
-
-    mcp.run(transport="stdio")
-
-
-def run_http() -> None:
-    """Entry point for HTTP transport with optional config file or URL."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Omni-FS MCP Server (HTTP)")
-    parser.add_argument("--config", help="JSON configuration file")
-    parser.add_argument("--port", type=int, default=8000, help="Port (default: 8000)")
-    parser.add_argument("--host", default="localhost", help="Host (default: localhost)")
-
-    # For backward compatibility
-    parser.add_argument("url", nargs="?", help="Backend URL (for single backend mode)")
-
-    args = parser.parse_args()
-
-    logger.info("Starting Omni-FS MCP Server with HTTP transport")
-    logger.info(f"Server will listen on {args.host}:{args.port}")
-
-    if args.url and not args.config:
-        logger.info(f"Single backend mode with URL: {args.url}")
-        backend_manager.register_backend(
-            name="default",
-            url=args.url,
-            description="Legacy single backend",
-            set_as_default=True,
-        )
-    elif args.config:
-        try:
-            load_config_from_file(args.config)
-            logger.info(f"Loaded configuration from {args.config}")
-        except Exception as e:
-            logger.error(f"Failed to load configuration: {e}")
-            return
-
-    mcp.run(transport="streamable-http")
 
 
 if __name__ == "__main__":
